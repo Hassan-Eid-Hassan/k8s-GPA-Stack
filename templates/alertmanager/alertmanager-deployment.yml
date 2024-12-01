@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alertmanager.fullname" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "alertmanager.labels" . | nindent 4 }}
+spec:
+  {{- if not $.Values.alertmanager.autoscaling.enabled }}
+  replicas: {{ $.Values.alertmanager.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "alertmanager.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.alertmanager.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "alertmanager.labels" . | nindent 8 }}
+        {{- with $.Values.alertmanager.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $.Values.alertmanager.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $.Values.alertmanager.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Values.alertmanager.podName }}
+          securityContext:
+            {{- toYaml $.Values.alertmanager.securityContext | nindent 12 }}
+          image: "{{ $.Values.alertmanager.image.repository }}:{{ $.Values.alertmanager.image.tag | default .Chart.AppVersion }}"
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+            - "--storage.path=/alertmanager"
+          ports:
+            - name: {{ $.Values.alertmanager.portName }}
+              containerPort: {{ $.Values.alertmanager.podPort }}
+              protocol: {{ $.Values.alertmanager.portProtocol }}
+          livenessProbe:
+            {{- toYaml $.Values.alertmanager.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml $.Values.alertmanager.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml $.Values.alertmanager.resources | nindent 12 }}
+          {{- with $.Values.alertmanager.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $.Values.alertmanager.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,33 @@
+{{- if $.Values.alertmanager.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "alertmanager.fullname" . }}-hpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "alertmanager.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "alertmanager.fullname" . }}-deployment
+  minReplicas: {{ $.Values.alertmanager.autoscaling.minReplicas }}
+  maxReplicas: {{ $.Values.alertmanager.autoscaling.maxReplicas }}
+  metrics:
+    {{- if $.Values.alertmanager.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.alertmanager.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if $.Values.alertmanager.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $.Values.alertmanager.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

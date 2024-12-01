@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "msteams.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "msteams.name" . }}
+    chart: {{ template "msteams.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ $.Values.msteams.service.type }}
+  {{- if eq $.Values.msteams.service.type "LoadBalancer" }}
+  {{- if $.Values.msteams.service.loadBalancerIP }}
+  loadBalancerIP: {{ $.Values.msteams.service.loadBalancerIP | quote }}
+  {{- end }}
+  {{- if $.Values.msteams.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $.Values.msteams.service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  {{- end }}
+  {{- if $.Values.msteams.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ $.Values.msteams.service.externalTrafficPolicy }}
+  {{- end }}
+  ports:
+    - port: {{ $.Values.msteams.service.port }}
+      targetPort: http
+      protocol: TCP
+  {{- if $.Values.msteams.service.externalIPs }}
+  externalIPs:
+    {{- toYaml $.Values.msteams.service.externalIPs | nindent 4 }}
+  {{- end }}
+  selector:
+    app: {{ template "msteams.name" . }}
+    release: {{ .Release.Name }}

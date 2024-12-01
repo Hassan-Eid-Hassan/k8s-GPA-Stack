@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alertmanager.fullname" . }}-svc
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port:   '9090'
+  labels:
+    {{- include "alertmanager.labels" . | nindent 4 }}
+spec:
+  type: {{ $.Values.alertmanager.service.type }}
+  ports:
+    - port: {{ $.Values.alertmanager.service.port }}
+      targetPort: {{ $.Values.alertmanager.portName }}
+      protocol: {{ $.Values.alertmanager.portProtocol }}
+      name: {{ $.Values.alertmanager.portName }}
+  selector:
+    {{- include "alertmanager.selectorLabels" . | nindent 4 }}

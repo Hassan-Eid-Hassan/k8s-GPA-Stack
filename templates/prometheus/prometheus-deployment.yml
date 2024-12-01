@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "prometheus.fullname" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "prometheus.labels" . | nindent 4 }}
+spec:
+  {{- if not $.Values.prometheus.autoscaling.enabled }}
+  replicas: {{ $.Values.prometheus.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "prometheus.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.prometheus.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "prometheus.labels" . | nindent 8 }}
+        {{- with $.Values.prometheus.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $.Values.prometheus.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "prometheus.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml $.Values.prometheus.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Values.prometheus.podName }}
+          securityContext:
+            {{- toYaml $.Values.prometheus.securityContext | nindent 12 }}
+          image: "{{ $.Values.prometheus.image.repository }}:{{ $.Values.prometheus.image.tag | default .Chart.AppVersion }}"
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - name: {{ $.Values.prometheus.portName }}
+              containerPort: {{ $.Values.prometheus.podPort }}
+              protocol: {{ $.Values.prometheus.portProtocol }}
+          livenessProbe:
+            {{- toYaml $.Values.prometheus.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml $.Values.prometheus.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml $.Values.prometheus.resources | nindent 12 }}
+          {{- with $.Values.prometheus.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $.Values.prometheus.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,113 @@
+apiVersion: {{ template "deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "msteams.name" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "msteams.name" . }}
+    chart: {{ template "msteams.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ $.Values.msteams.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "msteams.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "msteams.name" . }}
+        release: {{ .Release.Name }}
+{{- if $.Values.msteams.podLabels }}
+{{ toYaml $.Values.msteams.podLabels | indent 8 }}
+{{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/prometheus-msteams/prometheus-msteams-configMapConfig.yaml") . | sha256sum }}
+        checksum/msteams-card-templates: {{ include (print $.Template.BasePath "/prometheus-msteams/prometheus-msteams-configMapTemplate.yaml") . | sha256sum }}
+{{- if $.Values.msteams.podAnnotations }}
+{{ toYaml $.Values.msteams.podAnnotations | indent 8 }}
+{{- end }}
+    spec:
+      {{- if $.Values.msteams.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml $.Values.msteams.imagePullSecrets | indent 8 }}
+      {{- end}}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "msteams.name" . }}-config
+        - name: card-template-volume
+          configMap:
+            name: {{ template "msteams.name" . }}-card-template
+      {{- if $.Values.msteams.extraConfigmapMounts }}
+      {{ toYaml $.Values.msteams.extraConfigmapMounts | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ $.Values.msteams.image.repository }}:{{ $.Values.msteams.image.tag }}"
+{{- if $.Values.msteams.containerSecurityContext }}
+          securityContext:
+{{ toYaml $.Values.msteams.containerSecurityContext | indent 12 }}
+{{- end }}
+          imagePullPolicy: {{ $.Values.msteams.image.pullPolicy }}
+          env:
+            {{- range $key, $value := $.Values.msteams.extraEnvs }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- if $.Values.msteams.envFrom }}
+          envFrom:
+            {{- toYaml $.Values.msteams.envFrom | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: card-template-volume
+              mountPath: /etc/template
+          {{- if $.Values.msteams.extraVolumeMounts }}
+          {{ toYaml $.Values.msteams.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+          args:
+            - -config-file=/etc/config/connectors.yaml
+            - -template-file={{ $.Values.msteams.templateFile }}
+          {{- with $.Values.msteams.container.additionalArgs }}
+{{ toYaml . | indent 12 }}
+          {{- end}}
+          ports:
+          - name: http
+            containerPort: {{ $.Values.msteams.container.port }}
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /config
+              port: http
+            initialDelaySeconds: 1
+            periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /config
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+{{ toYaml $.Values.msteams.resources | indent 12 }}
+    {{- with $.Values.msteams.podSecurityContext }}
+      securityContext:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with $.Values.msteams.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with $.Values.msteams.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with $.Values.msteams.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if $.Values.msteams.priorityClassName }}
+      priorityClassName: {{ $.Values.msteams.priorityClassName }}
+    {{- end }}

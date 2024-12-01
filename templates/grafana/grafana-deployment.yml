@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "grafana.fullname" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "grafana.labels" . | nindent 4 }}
+spec:
+  {{- if not $.Values.grafana.autoscaling.enabled }}
+  replicas: {{ $.Values.grafana.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "grafana.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with $.Values.grafana.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "grafana.labels" . | nindent 8 }}
+        {{- with $.Values.grafana.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with $.Values.grafana.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml $.Values.grafana.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ $.Values.grafana.podName }}
+          securityContext:
+            {{- toYaml $.Values.grafana.securityContext | nindent 12 }}
+          image: "{{ $.Values.grafana.image.repository }}:{{ $.Values.grafana.image.tag | default .Chart.AppVersion }}"
+          ports:
+            - name: {{ $.Values.grafana.portName }}
+              containerPort: {{ $.Values.grafana.podPort }}
+              protocol: {{ $.Values.grafana.portProtocol }}
+          livenessProbe:
+            {{- toYaml $.Values.grafana.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml $.Values.grafana.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml $.Values.grafana.resources | nindent 12 }}
+          {{- with $.Values.grafana.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with $.Values.grafana.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
