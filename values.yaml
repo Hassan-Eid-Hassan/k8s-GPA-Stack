@@ -136,6 +136,102 @@ prometheus:
 
 # Default values for Grafana.
 grafana:
+
+  ## ForceDeployDatasources Create datasource configmap even if grafana deployment has been disabled
+  ##
+  forceDeployDatasources: false
+
+  ## ForceDeployDashboard Create dashboard configmap even if grafana deployment has been disabled
+  ##
+  forceDeployDashboards: false
+
+  ## Deploy default dashboards
+  ##
+  defaultDashboardsEnabled: true
+
+  ## Timezone for the default dashboards
+  ## Other options are: browser or a specific timezone, i.e. Europe/Luxembourg
+  ##
+  defaultDashboardsTimezone: utc
+
+  ## Editable flag for the default dashboards
+  ##
+  defaultDashboardsEditable: true
+
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    # Allow discovery in all namespaces for dashboards
+    searchNamespace: ALL
+
+    # Support for new table panels, when enabled grafana auto migrates the old table panels to newer table panels
+    enableNewTablePanelSyntax: false
+
+    ## Annotations for Grafana dashboard configmaps
+    ##
+    annotations: {}
+    multicluster:
+      global:
+        enabled: false
+      etcd:
+        enabled: false
+    provider:
+      allowUiUpdates: false
+  datasources:
+    enabled: true
+    defaultDatasourceEnabled: true
+    isDefaultDatasource: true
+
+    name: Prometheus
+    uid: prometheus
+
+    ## URL of prometheus datasource
+    ##
+    # url: http://prometheus-stack-prometheus:9090/
+
+    ## Prometheus request timeout in seconds
+    # timeout: 30
+
+    # If not defined, will use prometheus.prometheusSpec.scrapeInterval or its default
+    # defaultDatasourceScrapeInterval: 15s
+
+    ## Annotations for Grafana datasource configmaps
+    ##
+    annotations: {}
+
+    ## Set method for HTTP to send query to datasource
+    httpMethod: POST
+
+    ## Create datasource for each Pod of Prometheus StatefulSet;
+    ## this uses headless service `prometheus-operated` which is
+    ## created by Prometheus Operator
+    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/0fee93e12dc7c2ea1218f19ae25ec6b893460590/pkg/prometheus/statefulset.go#L255-L286
+    createPrometheusReplicasDatasources: false
+    label: grafana_datasource
+    labelValue: "1"
+
+    ## Field with internal link pointing to existing data source in Grafana.
+    ## Can be provisioned via additionalDataSources
+    exemplarTraceIdDestinations: {}
+      # datasourceUid: Jaeger
+      # traceIdLabelName: trace_id
+    alertmanager:
+      enabled: true
+      name: Alertmanager
+      uid: alertmanager
+      handleGrafanaManagedAlerts: false
+      implementation: prometheus
+
+  deleteDatasources: []
+  # - name: example-datasource
+  #   orgId: 1
+
+  # Flag to mark provisioned data sources for deletion if they are no longer configured.
+  # It takes no effect if data sources are already listed in the deleteDatasources section.
+  # ref: https://grafana.com/docs/grafana/latest/administration/provisioning/#example-data-source-config-file
+  prune: false
+
   # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
   replicaCount: 1
 
@@ -168,13 +264,16 @@ grafana:
   podSecurityContext: {}
     # fsGroup: 2000
 
-  securityContext: {}
-    # capabilities:
-    #   drop:
-    #   - ALL
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 472
+    # runAsGroup: 472
+    # fsGroup: 472
     # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
-    # runAsUser: 1000
 
   # This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
   service:
@@ -214,13 +313,24 @@ grafana:
 
   # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
   livenessProbe:
+    failureThreshold: 10
     httpGet:
-      path: /
-      port: http
+      path: /api/health
+      port: 3000
+      scheme: HTTP
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 30
   readinessProbe:
+    failureThreshold: 3
     httpGet:
-      path: /
-      port: http
+      path: /api/health
+      port: 3000
+      scheme: HTTP
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 1
 
   #This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
   autoscaling:
@@ -232,22 +342,37 @@ grafana:
 
   # Additional volumes on the output Deployment definition.
   volumes:
-    - name: grafana-datasources
-      configMap:
+    - configMap:
         defaultMode: 420
-        name: grafana-datasources
-
-    - name: grafana-storage
-      emptyDir: {}
+        name: gp-grafana
+      name: config
+    - emptyDir: {}
+      name: storage
+    - emptyDir: {}
+      name: sc-dashboard-volume
+    - configMap:
+        defaultMode: 420
+        name: gp-grafana-config-dashboards
+      name: sc-dashboard-provider
+    - emptyDir: {}
+      name: sc-datasources-volume
 
   # Additional volumeMounts on the output Deployment definition.
   volumeMounts:
-    - name: grafana-storage
-      mountPath: /var/lib/grafana
-    - name: grafana-datasources
-      mountPath: /etc/grafana/provisioning/datasources
+    - mountPath: /etc/grafana/grafana.ini
+      name: config
+      subPath: grafana.ini
+    - mountPath: /var/lib/grafana
+      name: storage
+    - mountPath: /tmp/dashboards
+      name: sc-dashboard-volume
+    - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboardproviders.yaml
+      name: sc-dashboard-provider
+      subPath: provider.yaml
+    - mountPath: /etc/grafana/provisioning/datasources
+      name: sc-datasources-volume
 
-# Default values for Grafana.
+# Default values for Alertmanager.
 alertmanager:
   # This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
   replicaCount: 1
