@@ -1,79 +1,62 @@
-{{- if or .Values.grafana.sidecar.datasources.enabled .Values.grafana.forceDeployDatasources }}
+{{- if or $.Values.grafana.datasources.enabled $.Values.grafana.forceDeployDatasources }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "grafana.fullname" . }}-datasource
+  name: grafana-datasource
   namespace: {{ .Release.Namespace }}
   labels:
     grafana_datasource: "1"
-{{ include "kube-prometheus-stack.labels" $ | indent 4 }}
+{{ include "grafana.labels" $ | indent 4 }}
 data:
   datasource.yaml: |-
     apiVersion: 1
-{{- if .Values.grafana.deleteDatasources }}
+{{- if $.Values.grafana.deleteDatasources }}
     deleteDatasources:
-{{ tpl (toYaml .Values.grafana.deleteDatasources | indent 6) . }}
+{{ tpl (toYaml $.Values.grafana.deleteDatasources | indent 6) . }}
 {{- end }}
-{{- if .Values.grafana.prune }}
-    prune: {{ .Values.grafana.prune }}
+{{- if $.Values.grafana.prune }}
+    prune: {{ $.Values.grafana.prune }}
 {{- end }}
     datasources:
-{{- $scrapeInterval := .Values.grafana.sidecar.datasources.defaultDatasourceScrapeInterval | default "30s" }}
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
-    - name: "{{ .Values.grafana.sidecar.datasources.name }}"
+{{- $scrapeInterval := $.Values.grafana.datasources.defaultDatasourceScrapeInterval | default "30s" }}
+{{- if $.Values.grafana.datasources.defaultDatasourceEnabled }}
+    - name: "{{ $.Values.grafana.datasources.name }}"
       type: prometheus
-      uid: {{ .Values.grafana.sidecar.datasources.uid }}
-      {{- if .Values.grafana.sidecar.datasources.url }}
-      url: {{ .Values.grafana.sidecar.datasources.url }}
+      uid: {{ $.Values.grafana.datasources.uid }}
+      {{- if $.Values.grafana.datasources.url }}
+      url: {{ $.Values.grafana.datasources.url }}
       {{- else }}
       url: http://{{ include "prometheus.fullname" . }}-svc.{{ .Release.Namespace }}.svc:{{ $.Values.prometheus.service.port }}
       {{- end }}
       access: proxy
-      isDefault: {{ .Values.grafana.sidecar.datasources.isDefaultDatasource }}
+      isDefault: {{ $.Values.grafana.datasources.isDefaultDatasource }}
       jsonData:
-        httpMethod: {{ .Values.grafana.sidecar.datasources.httpMethod }}
+        httpMethod: {{ $.Values.grafana.datasources.httpMethod }}
         timeInterval: {{ $scrapeInterval }}
-        {{- if .Values.grafana.sidecar.datasources.timeout }}
-        timeout: {{ .Values.grafana.sidecar.datasources.timeout }}
+        {{- if $.Values.grafana.datasources.timeout }}
+        timeout: {{ $.Values.grafana.datasources.timeout }}
         {{- end }}
-{{- if .Values.grafana.sidecar.datasources.exemplarTraceIdDestinations }}
+{{- if $.Values.grafana.datasources.exemplarTraceIdDestinations }}
         exemplarTraceIdDestinations:
-        - datasourceUid: {{ .Values.grafana.sidecar.datasources.exemplarTraceIdDestinations.datasourceUid }}
-          name: {{ .Values.grafana.sidecar.datasources.exemplarTraceIdDestinations.traceIdLabelName }}
+        - datasourceUid: {{ $.Values.grafana.datasources.exemplarTraceIdDestinations.datasourceUid }}
+          name: {{ $.Values.grafana.datasources.exemplarTraceIdDestinations.traceIdLabelName }}
 {{- end }}
-{{- if .Values.grafana.sidecar.datasources.createPrometheusReplicasDatasources }}
-{{- range until (int .Values.prometheus.prometheusSpec.replicas) }}
-    - name: "{{ $.Values.grafana.sidecar.datasources.name }}-{{ . }}"
-      type: prometheus
-      uid: {{ $.Values.grafana.sidecar.datasources.uid }}-replica-{{ . }}
-      url: http://prometheus-{{ template "kube-prometheus-stack.prometheus.crname" $ }}-{{ . }}.prometheus-operated:9090/{{ trimPrefix "/" $.Values.prometheus.prometheusSpec.routePrefix }}
-      access: proxy
-      isDefault: false
-      jsonData:
-        timeInterval: {{ $scrapeInterval }}
-{{- if $.Values.grafana.sidecar.datasources.exemplarTraceIdDestinations }}
-        exemplarTraceIdDestinations:
-        - datasourceUid: {{ $.Values.grafana.sidecar.datasources.exemplarTraceIdDestinations.datasourceUid }}
-          name: {{ $.Values.grafana.sidecar.datasources.exemplarTraceIdDestinations.traceIdLabelName }}
-{{- end }}
-{{- end }}
-{{- end }}
-{{- if .Values.grafana.sidecar.datasources.alertmanager.enabled }}
-    - name: "{{ .Values.grafana.sidecar.datasources.alertmanager.name }}"
+{{- if $.Values.grafana.datasources.alertmanager.enabled }}
+    - name: "{{ $.Values.grafana.datasources.alertmanager.name }}"
       type: alertmanager
-      uid: {{ .Values.grafana.sidecar.datasources.alertmanager.uid }}
-      {{- if .Values.grafana.sidecar.datasources.alertmanager.url }}
-      url: {{ .Values.grafana.sidecar.datasources.alertmanager.url }}
+      uid: {{ $.Values.grafana.datasources.alertmanager.uid }}
+      {{- if $.Values.grafana.datasources.alertmanager.url }}
+      url: {{ $.Values.grafana.datasources.alertmanager.url }}
       {{- else }}
-      url: http://{{ template "kube-prometheus-stack.fullname" . }}-alertmanager.{{ .Release.Namespace }}:{{ .Values.alertmanager.service.port }}/{{ trimPrefix "/" .Values.alertmanager.alertmanagerSpec.routePrefix }}
+      url: http://{{ include "alertmanager.fullname" . }}-svc.{{ .Release.Namespace }}.svc:{{ $.Values.alertmanager.service.port }}
       {{- end }}
       access: proxy
       jsonData:
-        handleGrafanaManagedAlerts: {{ .Values.grafana.sidecar.datasources.alertmanager.handleGrafanaManagedAlerts }}
-        implementation: {{ .Values.grafana.sidecar.datasources.alertmanager.implementation }}
+        handleGrafanaManagedAlerts: {{ $.Values.grafana.datasources.alertmanager.handleGrafanaManagedAlerts }}
+        implementation: {{ $.Values.grafana.datasources.alertmanager.implementation }}
 {{- end }}
 {{- end }}
-{{- if .Values.grafana.additionalDataSources }}
-{{ tpl (toYaml .Values.grafana.additionalDataSources | indent 4) . }}
+{{- if $.Values.grafana.additionalDataSources }}
+{{ tpl (toYaml $.Values.grafana.additionalDataSources | indent 4) . }}
 {{- end }}
 {{- end }}

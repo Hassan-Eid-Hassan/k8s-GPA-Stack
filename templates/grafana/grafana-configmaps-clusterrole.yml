@@ -1,0 +1,13 @@
+{{- if $.Values.grafana.clusterRole.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: grafana-configmaps-clusterrole
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - secrets
+  verbs: ["get", "list", "watch"]
+{{- end }}

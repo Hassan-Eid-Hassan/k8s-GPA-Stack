@@ -37,7 +37,7 @@ data:
         - source_labels: [__meta_kubernetes_endpoints_name]
           regex: 'node-exporter'
           action: keep
-      - job_name: 'kubernetes-apiservers'
+      - job_name: 'apiserver'
         kubernetes_sd_configs:
         - role: endpoints
         scheme: https

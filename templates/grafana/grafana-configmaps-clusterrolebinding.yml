@@ -1,0 +1,15 @@
+{{- if $.Values.grafana.clusterRoleBinding.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: grafana-configmaps-clusterrolebinding
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: grafana-configmaps-clusterrole
+subjects:
+- kind: ServiceAccount
+  name: {{ include "grafana.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

@@ -50,3 +50,12 @@ app.kubernetes.io/name: {{ include "grafana.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: grafana-server
 {{- end }}
+
+
+{{- define "grafana.serviceAccountName" -}}
+{{- if $.Values.grafana.serviceAccount.create }}
+{{- default (include "grafana.fullname" .) $.Values.grafana.serviceAccount.name }}-sa
+{{- else }}
+{{- default "default" $.Values.grafana.serviceAccount.name }}
+{{- end }}
+{{- end }}

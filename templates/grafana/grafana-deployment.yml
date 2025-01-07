@@ -28,6 +28,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "grafana.serviceAccountName" . }}
       securityContext:
         {{- toYaml $.Values.grafana.podSecurityContext | nindent 8 }}
       containers:
@@ -47,13 +48,13 @@ spec:
           - name: REQ_USERNAME
             valueFrom:
               secretKeyRef:
-                key: admin-user
-                name: gp-grafana
+                key: grafana-admin-user
+                name: {{ include "grafana.fullname" . }}-secret
           - name: REQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                key: admin-password
-                name: gp-grafana
+                key: grafana-admin-password
+                name: {{ include "grafana.fullname" . }}-secret
           - name: REQ_URL
             value: http://localhost:3000/api/admin/provisioning/dashboards/reload
           - name: REQ_METHOD
@@ -88,13 +89,13 @@ spec:
           - name: REQ_USERNAME
             valueFrom:
               secretKeyRef:
-                key: admin-user
-                name: gp-grafana
+                key: grafana-admin-user
+                name: {{ include "grafana.fullname" . }}-secret
           - name: REQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                key: admin-password
-                name: gp-grafana
+                key: grafana-admin-password
+                name: {{ include "grafana.fullname" . }}-secret
           - name: REQ_URL
             value: http://localhost:3000/api/admin/provisioning/datasources/reload
           - name: REQ_METHOD
@@ -125,13 +126,13 @@ spec:
             - name: GF_SECURITY_ADMIN_USER
               valueFrom:
                 secretKeyRef:
-                  key: admin-user
-                  name: gp-grafana
+                  key: grafana-admin-user
+                  name: {{ include "grafana.fullname" . }}-secret
             - name: GF_SECURITY_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  key: admin-password
-                  name: gp-grafana
+                  key: grafana-admin-password
+                  name: {{ include "grafana.fullname" . }}-secret
             - name: GF_PATHS_DATA
               value: /var/lib/grafana/
             - name: GF_PATHS_LOGS

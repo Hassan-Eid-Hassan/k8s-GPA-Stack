@@ -141,10 +141,6 @@ grafana:
   ##
   forceDeployDatasources: false
 
-  ## ForceDeployDashboard Create dashboard configmap even if grafana deployment has been disabled
-  ##
-  forceDeployDashboards: false
-
   ## Deploy default dashboards
   ##
   defaultDashboardsEnabled: true
@@ -178,6 +174,10 @@ grafana:
         enabled: false
     provider:
       allowUiUpdates: false
+
+    windowsMonitoring:
+      ## Windows-specific dashboards (job name must be 'windows-exporter')
+      enabled: false
   datasources:
     enabled: true
     defaultDatasourceEnabled: true
@@ -203,11 +203,6 @@ grafana:
     ## Set method for HTTP to send query to datasource
     httpMethod: POST
 
-    ## Create datasource for each Pod of Prometheus StatefulSet;
-    ## this uses headless service `prometheus-operated` which is
-    ## created by Prometheus Operator
-    ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/0fee93e12dc7c2ea1218f19ae25ec6b893460590/pkg/prometheus/statefulset.go#L255-L286
-    createPrometheusReplicasDatasources: false
     label: grafana_datasource
     labelValue: "1"
 
@@ -222,6 +217,21 @@ grafana:
       uid: alertmanager
       handleGrafanaManagedAlerts: false
       implementation: prometheus
+
+  additionalDataSources: []
+  # - name: prometheus-sample
+  #   access: proxy
+  #   basicAuth: true
+  #   secureJsonData:
+  #       basicAuthPassword: pass
+  #   basicAuthUser: daco
+  #   editable: false
+  #   jsonData:
+  #       tlsSkipVerify: true
+  #   orgId: 1
+  #   type: prometheus
+  #   url: https://{{ printf "%s-prometheus.svc" .Release.Name }}:9090
+  #   version: 1
 
   deleteDatasources: []
   # - name: example-datasource
@@ -340,11 +350,35 @@ grafana:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
+  secrets:
+    username: "admin"
+    password: "admin"
+
+  clusterRoleBinding:
+    # Specifies whether a ClusterRoleBinding should be created
+    create: true
+
+  clusterRole:
+    # Specifies whether a ClusterRole should be created
+    create: true
+
+  #This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Automatically mount a ServiceAccount's API credentials?
+    automount: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
   # Additional volumes on the output Deployment definition.
   volumes:
     - configMap:
         defaultMode: 420
-        name: gp-grafana
+        name: grafana-config
       name: config
     - emptyDir: {}
       name: storage
@@ -352,7 +386,7 @@ grafana:
       name: sc-dashboard-volume
     - configMap:
         defaultMode: 420
-        name: gp-grafana-config-dashboards
+        name: grafana-dashboard-config
       name: sc-dashboard-provider
     - emptyDir: {}
       name: sc-datasources-volume
@@ -366,7 +400,7 @@ grafana:
       name: storage
     - mountPath: /tmp/dashboards
       name: sc-dashboard-volume
-    - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboardproviders.yaml
+    - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboard-provider.yaml
       name: sc-dashboard-provider
       subPath: provider.yaml
     - mountPath: /etc/grafana/provisioning/datasources
@@ -750,7 +784,7 @@ kubeStateMetrics:
 
   prometheus:
     monitor:
-      enabled: false
+      enabled: true
       annotations: {}
       additionalLabels: {}
       namespace: ""
