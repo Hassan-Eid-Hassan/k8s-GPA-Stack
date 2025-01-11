@@ -69,7 +69,6 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{ tpl (toYaml $.Values.kubeStateMetrics.customLabels) . }}
 {{- end }}
 {{- if $.Values.kubeStateMetrics.releaseLabel }}
-release: {{ .Release.Name }}
 {{- end }}
 {{- end }}
 
@@ -82,6 +81,8 @@ Selector labels
 {{- else }}
 app.kubernetes.io/name: {{ include "kube-state-metrics.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+release: {{ .Release.Name }}
+app: {{ include "kube-state-metrics.name" . }}
 {{- end }}
 {{- end }}
 

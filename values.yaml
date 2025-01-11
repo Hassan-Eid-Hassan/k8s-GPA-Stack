@@ -782,8 +782,11 @@ kubeStateMetrics:
     # If false then the user will opt out of automounting API credentials.
     automountServiceAccountToken: true
 
-  prometheus:
+  serviceMonitor:
+    enabled: false
     monitor:
+    # Prometheus serviceMonitoring
+    prometheus:
       enabled: true
       annotations: {}
       additionalLabels: {}
@@ -854,7 +857,39 @@ kubeStateMetrics:
           # name: secret-name
           # key:  key-name
         tlsConfig: {}
-
+    # Grafana serviceMonitoring
+    grafana:
+      enabled: true
+    # Alertmanager serviceMonitoring
+    alertManager:
+      enabled: true
+    # k8s API-server serviceMonitoring
+    apiServer:
+      enabled: true
+    # k8s coredns serviceMonitoring
+    coredns:
+      enabled: true
+    # k8s Controller manager serviceMonitoring
+    controllerManager:
+      enabled: true
+    # k8s etcd serviceMonitoring
+    etcd:
+      enabled: true
+    # k8s kube-proxy serviceMonitoring
+    proxy:
+      enabled: true
+    # k8s kube-scheduler serviceMonitoring
+    scheduler:
+      enabled: true
+    # k8s kubelet serviceMonitoring
+    kubelet:
+      enabled: true
+    # kube-state-metrics serviceMonitoring
+    kubeStateMetrics:
+      enabled: true
+    # node-exporter serviceMonitoring
+    nodeExporter:
+      enabled: true
   ## Specify if a Pod Security Policy for kube-state-metrics must be created
   ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
   ##

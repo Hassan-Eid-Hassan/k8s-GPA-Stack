@@ -48,5 +48,6 @@ Selector labels
 {{- define "alertmanager.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "alertmanager.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: alertmanager-server
+app: {{ include "alertmanager.name" . }}
+release: {{ .Release.Name }}
 {{- end }}

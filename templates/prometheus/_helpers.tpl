@@ -48,7 +48,8 @@ Selector labels
 {{- define "prometheus.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "prometheus.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: prometheus-server
+app: {{ include "prometheus.name" . }}
+release: {{ .Release.Name }}
 {{- end }}
 
 {{/*

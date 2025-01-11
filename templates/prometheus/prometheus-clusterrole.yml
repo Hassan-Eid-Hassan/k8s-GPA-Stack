@@ -9,6 +9,10 @@ rules:
   resources:
   - nodes
   - nodes/proxy
+  - nodes/metrics
+  - nodes/stats
+  - nodes/log
+  - nodes/spec
   - services
   - endpoints
   - pods

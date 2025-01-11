@@ -37,6 +37,7 @@ spec:
           image: "{{ $.Values.alertmanager.image.repository }}:{{ $.Values.alertmanager.image.tag | default .Chart.AppVersion }}"
           args:
             - "--config.file=/etc/alertmanager/config.yml"
+            - "--cluster.label=app: {{ include "alertmanager.name" . }}"
             - "--storage.path=/alertmanager"
           ports:
             - name: {{ $.Values.alertmanager.portName }}

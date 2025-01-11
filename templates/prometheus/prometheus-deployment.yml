@@ -37,8 +37,13 @@ spec:
             {{- toYaml $.Values.prometheus.securityContext | nindent 12 }}
           image: "{{ $.Values.prometheus.image.repository }}:{{ $.Values.prometheus.image.tag | default .Chart.AppVersion }}"
           args:
+            - "--web.console.templates=/etc/prometheus/consoles"
+            - "--web.console.libraries=/etc/prometheus/console_libraries"
             - "--config.file=/etc/prometheus/prometheus.yml"
-            - "--storage.tsdb.path=/prometheus/"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.wal-compression"
+            - "--web.enable-lifecycle"
+            - "--storage.tsdb.retention.time=10d"
           ports:
             - name: {{ $.Values.prometheus.portName }}
               containerPort: {{ $.Values.prometheus.podPort }}

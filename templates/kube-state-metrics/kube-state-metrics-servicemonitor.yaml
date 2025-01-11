@@ -1,4 +1,6 @@
-{{- if $.Values.kubeStateMetrics.prometheus.monitor.enabled }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.enabled }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.enabled }}
+---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -6,115 +8,460 @@ metadata:
   namespace: {{ template "kube-state-metrics.namespace" . }}
   labels:
     {{- include "kube-state-metrics.labels" . | indent 4 }}
-  {{- with $.Values.kubeStateMetrics.prometheus.monitor.additionalLabels }}
+  {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.additionalLabels }}
     {{- tpl (toYaml . | nindent 4) $ }}
   {{- end }}
-  {{- with $.Values.kubeStateMetrics.prometheus.monitor.annotations }}
+  {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.annotations }}
   annotations:
     {{- tpl (toYaml . | nindent 4) $ }}
   {{- end }}
 spec:
-  jobLabel: {{ default "app.kubernetes.io/name" $.Values.kubeStateMetrics.prometheus.monitor.jobLabel }}
-  {{- with $.Values.kubeStateMetrics.prometheus.monitor.targetLabels }}
+  jobLabel: {{ default "app.kubernetes.io/name" $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.jobLabel }}
+  {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.targetLabels }}
   targetLabels:
     {{- toYaml . | trim | nindent 4 }}
   {{- end }}
-  {{- with $.Values.kubeStateMetrics.prometheus.monitor.podTargetLabels }}
+  {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.podTargetLabels }}
   podTargetLabels:
     {{- toYaml . | trim | nindent 4 }}
   {{- end }}
   {{- include "servicemonitor.scrapeLimits" $.Values.kubeStateMetrics.prometheus.monitor | indent 2 }}
-  {{- if $.Values.kubeStateMetrics.prometheus.monitor.namespaceSelector }}
+  {{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.namespaceSelector }}
   namespaceSelector:
     matchNames:
-    {{- with $.Values.kubeStateMetrics.prometheus.monitor.namespaceSelector }}
+    {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.namespaceSelector }}
       {{- toYaml . | nindent 6 }}
     {{- end }}
   {{- end }}
   selector:
     matchLabels:
-    {{- with $.Values.kubeStateMetrics.prometheus.monitor.selectorOverride }}
+    {{- with $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.selectorOverride }}
       {{- toYaml . | nindent 6 }}
     {{- else }}
       {{- include "kube-state-metrics.selectorLabels" . | indent 6 }}
     {{- end }}
+      self-monitor: "true"
   endpoints:
     - port: http
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.interval $.Values.kubeStateMetrics.prometheus.monitor.interval }}
-      interval: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.interval | default $.Values.kubeStateMetrics.prometheus.monitor.interval }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.interval $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.interval }}
+      interval: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.interval | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.interval }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.scrapeTimeout $.Values.kubeStateMetrics.prometheus.monitor.scrapeTimeout }}
-      scrapeTimeout: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.scrapeTimeout | default $.Values.kubeStateMetrics.prometheus.monitor.scrapeTimeout }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.scrapeTimeout $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scrapeTimeout }}
+      scrapeTimeout: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.scrapeTimeout | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scrapeTimeout }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.proxyUrl $.Values.kubeStateMetrics.prometheus.monitor.proxyUrl }}
-      proxyUrl: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.proxyUrl | default $.Values.kubeStateMetrics.prometheus.monitor.proxyUrl }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.proxyUrl $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.proxyUrl }}
+      proxyUrl: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.proxyUrl | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.proxyUrl }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.enableHttp2 $.Values.kubeStateMetrics.prometheus.monitor.enableHttp2 }}
-      enableHttp2: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.enableHttp2 | default $.Values.kubeStateMetrics.prometheus.monitor.enableHttp2 }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.enableHttp2 $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.enableHttp2 }}
+      enableHttp2: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.enableHttp2 | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.enableHttp2 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.honorLabels $.Values.kubeStateMetrics.prometheus.monitor.honorLabels }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.honorLabels $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.honorLabels }}
       honorLabels: true
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.metricRelabelings $.Values.kubeStateMetrics.prometheus.monitor.metricRelabelings }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.metricRelabelings $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metricRelabelings }}
       metricRelabelings:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.http.metricRelabelings | default $.Values.kubeStateMetrics.prometheus.monitor.metricRelabelings) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.metricRelabelings | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metricRelabelings) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.relabelings $.Values.kubeStateMetrics.prometheus.monitor.relabelings }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.relabelings $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.relabelings }}
       relabelings:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.http.relabelings | default $.Values.kubeStateMetrics.prometheus.monitor.relabelings) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.relabelings | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.relabelings) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.scheme $.Values.kubeStateMetrics.prometheus.monitor.scheme }}
-      scheme: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.scheme | default $.Values.kubeStateMetrics.prometheus.monitor.scheme }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.scheme $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scheme }}
+      scheme: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.scheme | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scheme }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.tlsConfig $.Values.kubeStateMetrics.prometheus.monitor.tlsConfig }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.tlsConfig $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.tlsConfig }}
       tlsConfig:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.http.tlsConfig | default $.Values.kubeStateMetrics.prometheus.monitor.tlsConfig) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.tlsConfig | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.tlsConfig) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.http.bearerTokenFile $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenFile }}
-      bearerTokenFile: {{ $.Values.kubeStateMetrics.prometheus.monitor.http.bearerTokenFile | default $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenFile }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.bearerTokenFile $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenFile }}
+      bearerTokenFile: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.bearerTokenFile | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenFile }}
     {{- end }}
-    {{- with ($.Values.kubeStateMetrics.prometheus.monitor.http.bearerTokenSecret | default $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenSecret) }}
+    {{- with ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.http.bearerTokenSecret | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenSecret) }}
       bearerTokenSecret:
         {{- toYaml . | nindent 8 }}
     {{- end }}
   {{- if $.Values.kubeStateMetrics.selfMonitor.enabled }}
     - port: metrics
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.interval $.Values.kubeStateMetrics.prometheus.monitor.interval }}
-      interval: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.interval | default $.Values.kubeStateMetrics.prometheus.monitor.interval }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.interval $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.interval }}
+      interval: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.interval | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.interval }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.scrapeTimeout $.Values.kubeStateMetrics.prometheus.monitor.scrapeTimeout }}
-      scrapeTimeout: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.scrapeTimeout | default $.Values.kubeStateMetrics.prometheus.monitor.scrapeTimeout }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.scrapeTimeout $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scrapeTimeout }}
+      scrapeTimeout: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.scrapeTimeout | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scrapeTimeout }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.proxyUrl $.Values.kubeStateMetrics.prometheus.monitor.proxyUrl }}
-      proxyUrl: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.proxyUrl | default $.Values.kubeStateMetrics.prometheus.monitor.proxyUrl }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.proxyUrl $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.proxyUrl }}
+      proxyUrl: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.proxyUrl | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.proxyUrl }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.enableHttp2 $.Values.kubeStateMetrics.prometheus.monitor.enableHttp2 }}
-      enableHttp2: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.enableHttp2 | default $.Values.kubeStateMetrics.prometheus.monitor.enableHttp2 }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.enableHttp2 $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.enableHttp2 }}
+      enableHttp2: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.enableHttp2 | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.enableHttp2 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.honorLabels $.Values.kubeStateMetrics.prometheus.monitor.honorLabels }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.honorLabels $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.honorLabels }}
       honorLabels: true
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.metricRelabelings $.Values.kubeStateMetrics.prometheus.monitor.metricRelabelings }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.metricRelabelings $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metricRelabelings }}
       metricRelabelings:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.metrics.metricRelabelings | default $.Values.kubeStateMetrics.prometheus.monitor.metricRelabelings) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.metricRelabelings | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metricRelabelings) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.relabelings $.Values.kubeStateMetrics.prometheus.monitor.relabelings }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.relabelings $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.relabelings }}
       relabelings:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.metrics.relabelings | default $.Values.kubeStateMetrics.prometheus.monitor.relabelings) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.relabelings | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.relabelings) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.scheme $.Values.kubeStateMetrics.prometheus.monitor.scheme }}
-      scheme: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.scheme | default $.Values.kubeStateMetrics.prometheus.monitor.scheme }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.scheme $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scheme }}
+      scheme: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.scheme | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.scheme }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.tlsConfig $.Values.kubeStateMetrics.prometheus.monitor.tlsConfig }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.tlsConfig $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.tlsConfig }}
       tlsConfig:
-        {{- toYaml ($.Values.kubeStateMetrics.prometheus.monitor.metrics.tlsConfig | default $.Values.kubeStateMetrics.prometheus.monitor.tlsConfig) | nindent 8 }}
+        {{- toYaml ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.tlsConfig | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.tlsConfig) | nindent 8 }}
     {{- end }}
-    {{- if or $.Values.kubeStateMetrics.prometheus.monitor.metrics.bearerTokenFile $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenFile }}
-      bearerTokenFile: {{ $.Values.kubeStateMetrics.prometheus.monitor.metrics.bearerTokenFile | default $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenFile }}
+    {{- if or $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.bearerTokenFile $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenFile }}
+      bearerTokenFile: {{ $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.bearerTokenFile | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenFile }}
     {{- end }}
-    {{- with ($.Values.kubeStateMetrics.prometheus.monitor.metrics.bearerTokenSecret | default $.Values.kubeStateMetrics.prometheus.monitor.bearerTokenSecret) }}
+    {{- with ($.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.metrics.bearerTokenSecret | default $.Values.kubeStateMetrics.serviceMonitor.monitor.prometheus.bearerTokenSecret) }}
       bearerTokenSecret:
         {{- toYaml . | nindent 8 }}
     {{- end }}
   {{- end }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.grafana.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "grafana.name" . }}-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+  labels:
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+    {{- include "grafana.labels" . | nindent 4 }}
+  {{- with $.Values.grafana.podAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+spec:
+  endpoints:
+  - honorLabels: true
+    path: /metrics
+    port: {{ $.Values.grafana.portName }}
+    scheme: http
+    scrapeTimeout: 30s
+  jobLabel: {{ include "grafana.name" . }}
+  namespaceSelector:
+    matchNames:
+    - {{ template "kube-state-metrics.namespace" . }}
+  selector:
+    matchLabels:
+      {{- include "grafana.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.alertManager.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+name: {{ include "alertmanager.fullname" . }}-servicemonitor
+namespace: {{ template "kube-state-metrics.namespace" . }}
+labels:
+  {{- include "kube-state-metrics.labels" . | indent 4 }}
+  {{- include "alertmanager.labels" . | nindent 4 }}
+{{- with $.Values.alertmanager.podAnnotations }}
+annotations:
+  {{- toYaml . | nindent 8 }}
+{{- end }}
+spec:
+  endpoints:
+  - enableHttp2: true
+    path: /metrics
+    port: {{ $.Values.alertmanager.portName }}
+  namespaceSelector:
+    matchNames:
+    - {{ template "kube-state-metrics.namespace" . }}
+  selector:
+    matchLabels:
+      {{- include "alertmanager.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.apiServer.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+    app: kube-state-metrics-apiserver
+  name: apiserver-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    metricRelabelings:
+    - action: drop
+      regex: apiserver_request_duration_seconds_bucket;(0.15|0.2|0.3|0.35|0.4|0.45|0.6|0.7|0.8|0.9|1.25|1.5|1.75|2|3|3.5|4|4.5|6|7|8|9|15|25|40|50)
+      sourceLabels:
+      - __name__
+      - le
+    port: https
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: false
+      serverName: kubernetes
+  jobLabel: component
+  namespaceSelector:
+    matchNames:
+    - default
+  selector:
+    matchLabels:
+      component: apiserver
+      provider: kubernetes
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.coredns.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+    app: kube-state-metrics-coredns
+  name: coredns-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    port: http-metrics
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app: kube-state-metrics-coredns
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.controllerManager.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+    app: kube-state-metrics-controller-manager
+  name: controller-manager-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    port: http-metrics
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app: kube-state-metrics-controller-manager
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.etcd.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: kube-state-metrics-etcd
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: etcd-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    port: http-metrics
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      component: etcd
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.proxy.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: kube-state-metrics-proxy
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: proxy-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    port: http-metrics
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app: kube-state-metrics-proxy
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.scheduler.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: kube-state-metrics-scheduler
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: scheduler-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    port: http-metrics
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+  jobLabel: jobLabel
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app: kube-state-metrics-scheduler
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.kubelet.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: kube-state-metrics-kubelet
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: kubelet-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  attachMetadata:
+    node: false
+  endpoints:
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    honorLabels: true
+    honorTimestamps: true
+    port: https-metrics
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __metrics_path__
+      targetLabel: metrics_path
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    honorLabels: true
+    honorTimestamps: true
+    interval: 10s
+    metricRelabelings:
+    - action: drop
+      regex: container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)
+      sourceLabels:
+      - __name__
+    - action: drop
+      regex: container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)
+      sourceLabels:
+      - __name__
+    - action: drop
+      regex: container_memory_(mapped_file|swap)
+      sourceLabels:
+      - __name__
+    - action: drop
+      regex: container_(file_descriptors|tasks_state|threads_max)
+      sourceLabels:
+      - __name__
+    - action: drop
+      regex: container_spec.*
+      sourceLabels:
+      - __name__
+    - action: drop
+      regex: .+;
+      sourceLabels:
+      - id
+      - pod
+    path: /metrics/cadvisor
+    port: https-metrics
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __metrics_path__
+      targetLabel: metrics_path
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+    trackTimestampsStaleness: true
+  - bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+    honorLabels: true
+    honorTimestamps: true
+    path: /metrics/probes
+    port: https-metrics
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __metrics_path__
+      targetLabel: metrics_path
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+  jobLabel: k8s-app
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kubelet
+      k8s-app: kubelet
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.kubeStateMetrics.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: kube-state-metrics-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  endpoints:
+  - honorLabels: true
+    port: http
+  jobLabel: app.kubernetes.io/name
+  selector:
+    matchLabels:
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
+{{- if $.Values.kubeStateMetrics.serviceMonitor.monitor.nodeExporter.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: node-exporter
+    {{- include "kube-state-metrics.labels" . | indent 4 }}
+  name: node-exporter-servicemonitor
+  namespace: {{ template "kube-state-metrics.namespace" . }}
+spec:
+  attachMetadata:
+    node: false
+  endpoints:
+  - port: http-metrics
+    scheme: http
+  jobLabel: jobLabel
+  selector:
+    matchLabels:
+      app: node-exporter
+      {{- include "kube-state-metrics.labels" . | indent 4 }}
+{{- end }}
 {{- end }}
