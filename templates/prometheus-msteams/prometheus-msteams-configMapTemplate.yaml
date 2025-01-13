@@ -2,8 +2,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
- name: {{ template "msteams.name" . }}-card-template
- namespace: {{ .Release.Namespace }}
+  name: {{ template "msteams.name" . }}-card-template
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "msteams.labels" . | nindent 4 }}
 binaryData:
   card.tmpl: |-
 {{- if $.Values.msteams.customCardTemplate }}

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: alertmanager-templates
   labels:
-    {{- include "grafana.labels" . | nindent 4 }}
+    {{- include "alertmanager.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 data:
   microsoft-teams.tmpl: |

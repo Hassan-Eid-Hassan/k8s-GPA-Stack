@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: grafana-dashboard-config
   labels:
-{{ include "grafana.labels" $ | indent 4 }}
+    {{- include "grafana.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 data:
   provider.yaml: |-

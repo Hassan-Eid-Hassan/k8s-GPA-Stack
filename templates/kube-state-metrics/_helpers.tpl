@@ -81,8 +81,6 @@ Selector labels
 {{- else }}
 app.kubernetes.io/name: {{ include "kube-state-metrics.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-release: {{ .Release.Name }}
-app: {{ include "kube-state-metrics.name" . }}
 {{- end }}
 {{- end }}
 
@@ -154,4 +152,16 @@ The image to use for kubeRBACProxy
 {{- printf "%s/%s:%s" $.Values.kubeStateMetrics.kubeRBACProxy.image.registry $.Values.kubeStateMetrics.kubeRBACProxy.image.repository (default (printf "v%s" .Chart.AppVersion) $.Values.kubeStateMetrics.kubeRBACProxy.image.tag) }}
 {{- end }}
 {{- end }}
+{{- end }}
+
+
+{{/*
+Generate basic services monitoring labels
+*/}}
+{{- define "servicesmonitoring.labels" -}}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+release: {{ .Release.Name }}
 {{- end }}

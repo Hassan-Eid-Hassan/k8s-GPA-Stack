@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kube-coredns-metrics
+  namespace: kube-system
+  labels:
+    {{- include "servicesmonitoring.labels" . | nindent 4 }}
+    app: kube-coredns-metrics
+    jobLabel: coredns
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+status:
+  loadBalancer: {}
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 9153
+      targetPort: 9153
+  selector:
+    k8s-app: kube-dns
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kube-controller-manager-metrics
+  namespace: kube-system
+  labels:
+    {{- include "servicesmonitoring.labels" . | nindent 4 }}
+    app: kube-controller-manager-metrics
+    jobLabel: kube-controller-manager
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+status:
+  loadBalancer: {}
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 10257
+      targetPort: 10257
+  selector:
+    component: kube-controller-manager
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kube-etcd-metrics
+  namespace: kube-system
+  labels:
+    {{- include "servicesmonitoring.labels" . | nindent 4 }}
+    app: kube-etcd-metrics
+    jobLabel: kube-etcd
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+status:
+  loadBalancer: {}
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 2381
+      targetPort: 2381
+  selector:
+    component: etcd
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kube-proxy-metrics
+  namespace: kube-system
+  labels:
+    {{- include "servicesmonitoring.labels" . | nindent 4 }}
+    app: kube-proxy-metrics
+    jobLabel: kube-proxy
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+status:
+  loadBalancer: {}
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 10249
+      targetPort: 10249
+  selector:
+    k8s-app: kube-proxy
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-kube-scheduler-metrics
+  namespace: kube-system
+  labels:
+    {{- include "servicesmonitoring.labels" . | nindent 4 }}
+    app: kube-scheduler-metrics
+    jobLabel: kube-scheduler
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+status:
+  loadBalancer: {}
+spec:
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 10259
+      targetPort: 10259
+  selector:
+    component: kube-scheduler
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  internalTrafficPolicy: Cluster

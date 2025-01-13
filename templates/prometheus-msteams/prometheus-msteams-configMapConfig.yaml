@@ -4,6 +4,8 @@ kind: ConfigMap
 metadata:
   name: {{ template "msteams.name" . }}-config
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "msteams.labels" . | nindent 4 }}
 data:
   connectors.yaml: |
     {{- with $.Values.msteams.connectors }}

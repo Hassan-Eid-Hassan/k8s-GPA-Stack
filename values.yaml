@@ -783,113 +783,79 @@ kubeStateMetrics:
     automountServiceAccountToken: true
 
   serviceMonitor:
-    enabled: false
     monitor:
-    # Prometheus serviceMonitoring
-    prometheus:
-      enabled: true
-      annotations: {}
-      additionalLabels: {}
-      namespace: ""
-      namespaceSelector: []
-      jobLabel: ""
-      targetLabels: []
-      podTargetLabels: []
-      ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
-      ##
-      sampleLimit: 0
+      # Prometheus serviceMonitoring
+      prometheus:
+        enabled: false
+        annotations: {}
+        additionalLabels: {}
+        namespace: ""
+        namespaceSelector: []
+        jobLabel: ""
+        targetLabels: []
+        podTargetLabels: []
+        ## SampleLimit defines per-scrape limit on number of scraped samples that will be accepted.
+        ##
+        sampleLimit: 0
 
-      ## TargetLimit defines a limit on the number of scraped targets that will be accepted.
-      ##
-      targetLimit: 0
+        ## TargetLimit defines a limit on the number of scraped targets that will be accepted.
+        ##
+        targetLimit: 0
 
-      ## Per-scrape limit on number of labels that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
-      ##
-      labelLimit: 0
+        ## Per-scrape limit on number of labels that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
+        ##
+        labelLimit: 0
 
-      ## Per-scrape limit on length of labels name that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
-      ##
-      labelNameLengthLimit: 0
+        ## Per-scrape limit on length of labels name that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
+        ##
+        labelNameLengthLimit: 0
 
-      ## Per-scrape limit on length of labels value that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
-      ##
-      labelValueLengthLimit: 0
-      selectorOverride: {}
+        ## Per-scrape limit on length of labels value that will be accepted for a sample. Only valid in Prometheus versions 2.27.0 and newer.
+        ##
+        labelValueLengthLimit: 0
+        selectorOverride: {}
 
-      ## kube-state-metrics endpoint
-      http:
-        interval: ""
-        scrapeTimeout: ""
-        proxyUrl: ""
-        ## Whether to enable HTTP2 for servicemonitor
-        enableHttp2: false
-        honorLabels: false
-        metricRelabelings: []
-        relabelings: []
-        scheme: ""
-        ## File to read bearer token for scraping targets
-        bearerTokenFile: ""
-        ## Secret to mount to read bearer token for scraping targets. The secret needs
-        ## to be in the same namespace as the service monitor and accessible by the
-        ## Prometheus Operator
-        bearerTokenSecret: {}
-          # name: secret-name
-          # key:  key-name
-        tlsConfig: {}
+        ## kube-state-metrics endpoint
+        http:
+          interval: ""
+          scrapeTimeout: ""
+          proxyUrl: ""
+          ## Whether to enable HTTP2 for servicemonitor
+          enableHttp2: false
+          honorLabels: false
+          metricRelabelings: []
+          relabelings: []
+          scheme: ""
+          ## File to read bearer token for scraping targets
+          bearerTokenFile: ""
+          ## Secret to mount to read bearer token for scraping targets. The secret needs
+          ## to be in the same namespace as the service monitor and accessible by the
+          ## Prometheus Operator
+          bearerTokenSecret: {}
+            # name: secret-name
+            # key:  key-name
+          tlsConfig: {}
 
-      ## selfMonitor endpoint
-      metrics:
-        interval: ""
-        scrapeTimeout: ""
-        proxyUrl: ""
-        ## Whether to enable HTTP2 for servicemonitor
-        enableHttp2: false
-        honorLabels: false
-        metricRelabelings: []
-        relabelings: []
-        scheme: ""
-        ## File to read bearer token for scraping targets
-        bearerTokenFile: ""
-        ## Secret to mount to read bearer token for scraping targets. The secret needs
-        ## to be in the same namespace as the service monitor and accessible by the
-        ## Prometheus Operator
-        bearerTokenSecret: {}
-          # name: secret-name
-          # key:  key-name
-        tlsConfig: {}
-    # Grafana serviceMonitoring
-    grafana:
-      enabled: true
-    # Alertmanager serviceMonitoring
-    alertManager:
-      enabled: true
-    # k8s API-server serviceMonitoring
-    apiServer:
-      enabled: true
-    # k8s coredns serviceMonitoring
-    coredns:
-      enabled: true
-    # k8s Controller manager serviceMonitoring
-    controllerManager:
-      enabled: true
-    # k8s etcd serviceMonitoring
-    etcd:
-      enabled: true
-    # k8s kube-proxy serviceMonitoring
-    proxy:
-      enabled: true
-    # k8s kube-scheduler serviceMonitoring
-    scheduler:
-      enabled: true
-    # k8s kubelet serviceMonitoring
-    kubelet:
-      enabled: true
-    # kube-state-metrics serviceMonitoring
-    kubeStateMetrics:
-      enabled: true
-    # node-exporter serviceMonitoring
-    nodeExporter:
-      enabled: true
+        ## selfMonitor endpoint
+        metrics:
+          interval: ""
+          scrapeTimeout: ""
+          proxyUrl: ""
+          ## Whether to enable HTTP2 for servicemonitor
+          enableHttp2: false
+          honorLabels: false
+          metricRelabelings: []
+          relabelings: []
+          scheme: ""
+          ## File to read bearer token for scraping targets
+          bearerTokenFile: ""
+          ## Secret to mount to read bearer token for scraping targets. The secret needs
+          ## to be in the same namespace as the service monitor and accessible by the
+          ## Prometheus Operator
+          bearerTokenSecret: {}
+            # name: secret-name
+            # key:  key-name
+          tlsConfig: {}
   ## Specify if a Pod Security Policy for kube-state-metrics must be created
   ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
   ##

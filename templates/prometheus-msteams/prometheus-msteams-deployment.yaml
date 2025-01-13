@@ -4,10 +4,7 @@ metadata:
   name: {{ template "msteams.name" . }}-deployment
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ template "msteams.name" . }}
-    chart: {{ template "msteams.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "msteams.labels" . | nindent 4 }}
 spec:
   replicas: {{ $.Values.msteams.replicaCount }}
   selector:

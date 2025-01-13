@@ -4,10 +4,7 @@ metadata:
   name: {{ template "msteams.name" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: {{ template "msteams.name" . }}
-    chart: {{ template "msteams.chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    {{- include "msteams.labels" . | nindent 4 }}
 spec:
   type: {{ $.Values.msteams.service.type }}
   {{- if eq $.Values.msteams.service.type "LoadBalancer" }}
@@ -28,10 +25,10 @@ spec:
     - port: {{ $.Values.msteams.service.port }}
       targetPort: http
       protocol: TCP
+      name: http
   {{- if $.Values.msteams.service.externalIPs }}
   externalIPs:
     {{- toYaml $.Values.msteams.service.externalIPs | nindent 4 }}
   {{- end }}
   selector:
-    app: {{ template "msteams.name" . }}
-    release: {{ .Release.Name }}
+    {{- include "msteams.selectorLabels" . | nindent 4 }}

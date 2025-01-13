@@ -41,3 +41,25 @@ Return the appropriate apiVersion for deployment.
 {{- print "apps/v1beta2" -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "msteams.labels" -}}
+helm.sh/chart: {{ include "msteams.chart" . }}
+{{ include "msteams.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "msteams.selectorLabels" -}}
+app: {{ template "msteams.name" . }}
+chart: {{ template "msteams.chart" . }}
+release: {{ .Release.Name }}
+heritage: {{ .Release.Service }}
+{{- end }}
