@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: alertmanager-templates
+  name:  {{ include "alertmanager.fullname" . }}-templates
   labels:
     {{- include "alertmanager.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}

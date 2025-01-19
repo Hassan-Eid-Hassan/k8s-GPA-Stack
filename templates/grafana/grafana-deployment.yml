@@ -157,8 +157,22 @@ spec:
           {{- with $.Values.grafana.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
+            - mountPath: /etc/grafana/grafana.ini
+              name: {{ include "grafana.fullname" . }}-config
+              subPath: grafana.ini
+            - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboard-provider.yaml
+              name: sc-dashboard-provider
+              subPath: provider.yaml
           {{- end }}
       {{- with $.Values.grafana.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
+        - configMap:
+            defaultMode: 420
+            name: {{ include "grafana.fullname" . }}-config
+          name: {{ include "grafana.fullname" . }}-config
+        - configMap:
+            defaultMode: 420
+            name: {{ include "grafana.fullname" . }}-dashboard-config
+          name: sc-dashboard-provider
       {{- end }}

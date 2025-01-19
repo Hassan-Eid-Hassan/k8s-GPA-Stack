@@ -119,18 +119,11 @@ prometheus:
 
   # Additional volumes on the output Deployment definition.
   volumes:
-    - name: prometheus-config-volume
-      configMap:
-        defaultMode: 420
-        name: prometheus-server-conf
-
     - name: prometheus-storage-volume
       emptyDir: {}
 
   # Additional volumeMounts on the output Deployment definition.
   volumeMounts:
-    - name: prometheus-config-volume
-      mountPath: /etc/prometheus/
     - name: prometheus-storage-volume
       mountPath: /prometheus/
 
@@ -376,33 +369,19 @@ grafana:
 
   # Additional volumes on the output Deployment definition.
   volumes:
-    - configMap:
-        defaultMode: 420
-        name: grafana-config
-      name: config
     - emptyDir: {}
       name: storage
     - emptyDir: {}
       name: sc-dashboard-volume
-    - configMap:
-        defaultMode: 420
-        name: grafana-dashboard-config
-      name: sc-dashboard-provider
     - emptyDir: {}
       name: sc-datasources-volume
 
   # Additional volumeMounts on the output Deployment definition.
   volumeMounts:
-    - mountPath: /etc/grafana/grafana.ini
-      name: config
-      subPath: grafana.ini
     - mountPath: /var/lib/grafana
       name: storage
     - mountPath: /tmp/dashboards
       name: sc-dashboard-volume
-    - mountPath: /etc/grafana/provisioning/dashboards/sc-dashboard-provider.yaml
-      name: sc-dashboard-provider
-      subPath: provider.yaml
     - mountPath: /etc/grafana/provisioning/datasources
       name: sc-datasources-volume
 
@@ -504,23 +483,11 @@ alertmanager:
 
   # Additional volumes on the output Deployment definition.
   volumes:
-    - name: config-volume
-      configMap:
-        defaultMode: 420
-        name: alertmanager-config
-    - name: templates-volume
-      configMap:
-        defaultMode: 420
-        name: alertmanager-templates
     - name: alertmanager
       emptyDir: {}
 
   # Additional volumeMounts on the output Deployment definition.
   volumeMounts:
-    - name: config-volume
-      mountPath: /etc/alertmanager
-    - name: templates-volume
-      mountPath: /etc/alertmanager-templates
     - name: alertmanager
       mountPath: /alertmanager
 

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-config
+  name: {{ include "grafana.fullname" . }}-config
   labels:
 {{ include "grafana.labels" $ | indent 4 }}
   namespace: {{ .Release.Namespace }}

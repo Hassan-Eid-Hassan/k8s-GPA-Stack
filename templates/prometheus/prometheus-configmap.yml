@@ -1,22 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: prometheus-server-conf
+  name: {{ include "prometheus.fullname" . }}-server-config
   labels:
     {{- include "prometheus.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 data:
-  prometheus.rules: |-
-    groups:
-    - name: HassanEid demo alert
-      rules:
-      - alert: High Pod Memory
-        expr: sum(container_memory_usage_bytes) > 1
-        for: 1m
-        labels:
-          severity: slack
-        annotations:
-          summary: High Memory Usage
   prometheus.yml: |-
     global:
       scrape_interval: 10s
@@ -59,6 +48,8 @@ data:
             own_namespace: false
             names:
             - {{ .Release.Namespace }}
+    rule_files:
+    - /etc/prometheus/rules/{{ include "prometheus.fullname" . }}-rules-files/*.yaml
     scrape_configs:
     - job_name: 'alertmanager'
       honor_timestamps: true
