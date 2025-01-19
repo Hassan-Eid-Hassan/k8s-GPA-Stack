@@ -57,14 +57,15 @@ spec:
           {{- with $.Values.prometheus.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
             - name: {{ include "prometheus.fullname" . }}-rules-files
               mountPath: /etc/prometheus/rules/{{ include "prometheus.fullname" . }}-rules-files
             - name: {{ include "prometheus.fullname" . }}-server-config
               mountPath: /etc/prometheus/
-          {{- end }}
       {{- with $.Values.prometheus.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
         - name: {{ include "prometheus.fullname" . }}-rules-files
           configMap:
             name: {{ include "prometheus.fullname" . }}-rules-files
@@ -73,4 +74,3 @@ spec:
           configMap:
             defaultMode: 420
             name: {{ include "prometheus.fullname" . }}-server-config
-      {{- end }}

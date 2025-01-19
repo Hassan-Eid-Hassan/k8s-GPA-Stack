@@ -14,7 +14,7 @@ data:
     runtime:
       gogc: 75
     rule_files:
-      - /etc/prometheus/prometheus.rules
+    - /etc/prometheus/rules/{{ include "prometheus.fullname" . }}-rules-files/*.yaml
     alerting:
       alert_relabel_configs:
       - separator: ;
@@ -48,8 +48,6 @@ data:
             own_namespace: false
             names:
             - {{ .Release.Namespace }}
-    rule_files:
-    - /etc/prometheus/rules/{{ include "prometheus.fullname" . }}-rules-files/*.yaml
     scrape_configs:
     - job_name: 'alertmanager'
       honor_timestamps: true

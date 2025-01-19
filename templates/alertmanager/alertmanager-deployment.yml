@@ -52,14 +52,15 @@ spec:
           {{- with $.Values.alertmanager.volumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
+          {{- end }}
             - name: {{ include "alertmanager.fullname" . }}-config
               mountPath: /etc/alertmanager
             - name: {{ include "alertmanager.fullname" . }}-templates
               mountPath: /etc/alertmanager-templates
-          {{- end }}
       {{- with $.Values.alertmanager.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
         - name: {{ include "alertmanager.fullname" . }}-config
           configMap:
             defaultMode: 420
@@ -68,4 +69,3 @@ spec:
           configMap:
             defaultMode: 420
             name: {{ include "alertmanager.fullname" . }}-templates
-      {{- end }}
