@@ -869,90 +869,93 @@ data:
       follow_redirects: true
       enable_http2: true
       relabel_configs:
-      - source_labels: [job]
-        separator: ;
-        target_label: __tmp_prometheus_job_name
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_node_name]
-        target_label: instance
-      - source_labels: [__address__]
-        separator: ;
-        regex: ^([^:]+)(?::\d+)?$
-        target_label: __address__
-        replacement: '${1}:10250'
-        action: replace
-      - source_labels: [__meta_kubernetes_node_label_role]
-        target_label: node_role
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Node;(.*)
-        target_label: node
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Pod;(.*)
-        target_label: pod
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_namespace]
-        separator: ;
-        target_label: namespace
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: service
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_name]
-        separator: ;
-        target_label: pod
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_container_name]
-        separator: ;
-        target_label: container
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_phase]
-        separator: ;
-        regex: (Failed|Succeeded)
-        replacement: $1
-        action: drop
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: job
-        replacement: ${1}
-        action: replace
-      - source_labels: [__metrics_path__]
-        separator: ;
-        target_label: metrics_path
-        replacement: $1
-        action: replace
-      - source_labels: [__address__, __tmp_hash]
-        separator: ;
-        regex: (.+);
-        target_label: __tmp_hash
-        replacement: $1
-        action: replace
-      - source_labels: [__tmp_hash]
-        separator: ;
-        modulus: 1
-        target_label: __tmp_hash
-        replacement: $1
-        action: hashmod
-      - source_labels: [__tmp_hash]
-        separator: ;
-        regex: "0"
-        replacement: $1
-        action: keep
+        - source_labels: [job]
+          separator: ;
+          target_label: __tmp_prometheus_job_name
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_node_name]
+          target_label: instance
+        - source_labels: [__address__]
+          separator: ;
+          regex: ^([^:]+)(?::\d+)?$
+          target_label: __address__
+          replacement: '${1}:10250'
+          action: replace
+        - source_labels: [__meta_kubernetes_node_label_role]
+          target_label: node_role
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Node;(.*)
+          target_label: node
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Pod;(.*)
+          target_label: pod
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_namespace]
+          separator: ;
+          target_label: namespace
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: service
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_name]
+          separator: ;
+          target_label: pod
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          separator: ;
+          target_label: container
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_phase]
+          separator: ;
+          regex: (Failed|Succeeded)
+          replacement: $1
+          action: drop
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: job
+          replacement: ${1}
+          action: replace
+        - target_label: job
+          replacement: kubelet
+          action: replace
+        - source_labels: [__metrics_path__]
+          separator: ;
+          target_label: metrics_path
+          replacement: $1
+          action: replace
+        - source_labels: [__address__, __tmp_hash]
+          separator: ;
+          regex: (.+);
+          target_label: __tmp_hash
+          replacement: $1
+          action: replace
+        - source_labels: [__tmp_hash]
+          separator: ;
+          modulus: 1
+          target_label: __tmp_hash
+          replacement: $1
+          action: hashmod
+        - source_labels: [__tmp_hash]
+          separator: ;
+          regex: "0"
+          replacement: $1
+          action: keep
       kubernetes_sd_configs:
-      - role: node
-        kubeconfig_file: ""
-        follow_redirects: true
-        enable_http2: true
+        - role: node
+          kubeconfig_file: ""
+          follow_redirects: true
+          enable_http2: true
     - job_name: 'kubelet-cadvisor-metrics'
       honor_labels: true
       honor_timestamps: true
@@ -971,121 +974,124 @@ data:
       follow_redirects: true
       enable_http2: true
       relabel_configs:
-      - source_labels: [job]
-        separator: ;
-        target_label: __tmp_prometheus_job_name
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_node_name]
-        target_label: instance
-      - source_labels: [__address__]
-        separator: ;
-        regex: ^([^:]+)(?::\d+)?$
-        target_label: __address__
-        replacement: '${1}:10250'
-        action: replace
-      - source_labels: [__meta_kubernetes_node_label_role]
-        target_label: node_role
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Node;(.*)
-        target_label: node
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Pod;(.*)
-        target_label: pod
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_namespace]
-        separator: ;
-        target_label: namespace
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: service
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_name]
-        separator: ;
-        target_label: pod
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_container_name]
-        separator: ;
-        target_label: container
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_phase]
-        separator: ;
-        regex: (Failed|Succeeded)
-        replacement: $1
-        action: drop
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: job
-        replacement: ${1}
-        action: replace
-      - source_labels: [__metrics_path__]
-        separator: ;
-        target_label: metrics_path
-        replacement: $1
-        action: replace
-      - source_labels: [__address__, __tmp_hash]
-        separator: ;
-        regex: (.+);
-        target_label: __tmp_hash
-        replacement: $1
-        action: replace
-      - source_labels: [__tmp_hash]
-        separator: ;
-        modulus: 1
-        target_label: __tmp_hash
-        replacement: $1
-        action: hashmod
-      - source_labels: [__tmp_hash]
-        separator: ;
-        regex: "0"
-        replacement: $1
-        action: keep
+        - source_labels: [job]
+          separator: ;
+          target_label: __tmp_prometheus_job_name
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_node_name]
+          target_label: instance
+        - source_labels: [__address__]
+          separator: ;
+          regex: ^([^:]+)(?::\d+)?$
+          target_label: __address__
+          replacement: '${1}:10250'
+          action: replace
+        - source_labels: [__meta_kubernetes_node_label_role]
+          target_label: node_role
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Node;(.*)
+          target_label: node
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Pod;(.*)
+          target_label: pod
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_namespace]
+          separator: ;
+          target_label: namespace
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: service
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_name]
+          separator: ;
+          target_label: pod
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          separator: ;
+          target_label: container
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_phase]
+          separator: ;
+          regex: (Failed|Succeeded)
+          replacement: $1
+          action: drop
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: job
+          replacement: ${1}
+          action: replace
+        - target_label: job
+          replacement: kubelet
+          action: replace
+        - source_labels: [__metrics_path__]
+          separator: ;
+          target_label: metrics_path
+          replacement: $1
+          action: replace
+        - source_labels: [__address__, __tmp_hash]
+          separator: ;
+          regex: (.+);
+          target_label: __tmp_hash
+          replacement: $1
+          action: replace
+        - source_labels: [__tmp_hash]
+          separator: ;
+          modulus: 1
+          target_label: __tmp_hash
+          replacement: $1
+          action: hashmod
+        - source_labels: [__tmp_hash]
+          separator: ;
+          regex: "0"
+          replacement: $1
+          action: keep
       metric_relabel_configs:
-      - source_labels: [__name__]
-        separator: ;
-        regex: container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)
-        replacement: $1
-        action: drop
-      - source_labels: [__name__]
-        separator: ;
-        regex: container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)
-        replacement: $1
-        action: drop
-      - source_labels: [__name__]
-        separator: ;
-        regex: container_memory_(mapped_file|swap)
-        replacement: $1
-        action: drop
-      - source_labels: [__name__]
-        separator: ;
-        regex: container_(file_descriptors|tasks_state|threads_max)
-        replacement: $1
-        action: drop
-      - source_labels: [__name__]
-        separator: ;
-        regex: container_spec.*
-        replacement: $1
-        action: drop
-      - source_labels: [id, pod]
-        separator: ;
-        regex: .+;
-        replacement: $1
-        action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_cpu_(cfs_throttled_seconds_total|load_average_10s|system_seconds_total|user_seconds_total)
+          replacement: $1
+          action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_fs_(io_current|io_time_seconds_total|io_time_weighted_seconds_total|reads_merged_total|sector_reads_total|sector_writes_total|writes_merged_total)
+          replacement: $1
+          action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_memory_(mapped_file|swap)
+          replacement: $1
+          action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_(file_descriptors|tasks_state|threads_max)
+          replacement: $1
+          action: drop
+        - source_labels: [__name__]
+          separator: ;
+          regex: container_spec.*
+          replacement: $1
+          action: drop
+        - source_labels: [id, pod]
+          separator: ;
+          regex: .+;
+          replacement: $1
+          action: drop
       kubernetes_sd_configs:
-      - role: node
-        kubeconfig_file: ""
-        follow_redirects: true
-        enable_http2: true
+        - role: node
+          kubeconfig_file: ""
+          follow_redirects: true
+          enable_http2: true
     - job_name: 'kubelet-probes-metrics'
       honor_labels: true
       honor_timestamps: true
@@ -1104,90 +1110,93 @@ data:
       follow_redirects: true
       enable_http2: true
       relabel_configs:
-      - source_labels: [job]
-        separator: ;
-        target_label: __tmp_prometheus_job_name
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_node_name]
-        target_label: instance
-      - source_labels: [__address__]
-        separator: ;
-        regex: ^([^:]+)(?::\d+)?$
-        target_label: __address__
-        replacement: '${1}:10250'
-        action: replace
-      - source_labels: [__meta_kubernetes_node_label_role]
-        target_label: node_role
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Node;(.*)
-        target_label: node
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
-        separator: ;
-        regex: Pod;(.*)
-        target_label: pod
-        replacement: ${1}
-        action: replace
-      - source_labels: [__meta_kubernetes_namespace]
-        separator: ;
-        target_label: namespace
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: service
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_name]
-        separator: ;
-        target_label: pod
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_container_name]
-        separator: ;
-        target_label: container
-        replacement: $1
-        action: replace
-      - source_labels: [__meta_kubernetes_pod_phase]
-        separator: ;
-        regex: (Failed|Succeeded)
-        replacement: $1
-        action: drop
-      - source_labels: [__meta_kubernetes_service_name]
-        separator: ;
-        target_label: job
-        replacement: ${1}
-        action: replace
-      - source_labels: [__metrics_path__]
-        separator: ;
-        target_label: metrics_path
-        replacement: $1
-        action: replace
-      - source_labels: [__address__, __tmp_hash]
-        separator: ;
-        regex: (.+);
-        target_label: __tmp_hash
-        replacement: $1
-        action: replace
-      - source_labels: [__tmp_hash]
-        separator: ;
-        modulus: 1
-        target_label: __tmp_hash
-        replacement: $1
-        action: hashmod
-      - source_labels: [__tmp_hash]
-        separator: ;
-        regex: "0"
-        replacement: $1
-        action: keep
+        - source_labels: [job]
+          separator: ;
+          target_label: __tmp_prometheus_job_name
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_node_name]
+          target_label: instance
+        - source_labels: [__address__]
+          separator: ;
+          regex: ^([^:]+)(?::\d+)?$
+          target_label: __address__
+          replacement: '${1}:10250'
+          action: replace
+        - source_labels: [__meta_kubernetes_node_label_role]
+          target_label: node_role
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Node;(.*)
+          target_label: node
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_endpoint_address_target_kind, __meta_kubernetes_endpoint_address_target_name]
+          separator: ;
+          regex: Pod;(.*)
+          target_label: pod
+          replacement: ${1}
+          action: replace
+        - source_labels: [__meta_kubernetes_namespace]
+          separator: ;
+          target_label: namespace
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: service
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_name]
+          separator: ;
+          target_label: pod
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          separator: ;
+          target_label: container
+          replacement: $1
+          action: replace
+        - source_labels: [__meta_kubernetes_pod_phase]
+          separator: ;
+          regex: (Failed|Succeeded)
+          replacement: $1
+          action: drop
+        - source_labels: [__meta_kubernetes_service_name]
+          separator: ;
+          target_label: job
+          replacement: ${1}
+          action: replace
+        - target_label: job
+          replacement: kubelet
+          action: replace
+        - source_labels: [__metrics_path__]
+          separator: ;
+          target_label: metrics_path
+          replacement: $1
+          action: replace
+        - source_labels: [__address__, __tmp_hash]
+          separator: ;
+          regex: (.+);
+          target_label: __tmp_hash
+          replacement: $1
+          action: replace
+        - source_labels: [__tmp_hash]
+          separator: ;
+          modulus: 1
+          target_label: __tmp_hash
+          replacement: $1
+          action: hashmod
+        - source_labels: [__tmp_hash]
+          separator: ;
+          regex: "0"
+          replacement: $1
+          action: keep
       kubernetes_sd_configs:
-      - role: node
-        kubeconfig_file: ""
-        follow_redirects: true
-        enable_http2: true
+        - role: node
+          kubeconfig_file: ""
+          follow_redirects: true
+          enable_http2: true
     - job_name: 'prometheus'
       honor_timestamps: true
       track_timestamps_staleness: false
